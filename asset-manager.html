@@ -567,6 +567,8 @@
             <div class="toolbar-group" style="justify-content: flex-end;">
                 <button class="btn btn-success" onclick="openHostModal()">➕ 新增主机</button>
                 <button class="btn btn-warning" onclick="openModelModal()">⚙️ 管理型号</button>
+                <button class="btn btn-secondary" onclick="document.getElementById('csv-file-input').click()">📤 导入 CSV</button>
+                <input type="file" id="csv-file-input" accept=".csv" style="display:none;" onchange="importCSV(this)">
                 <button class="btn btn-secondary" onclick="exportCSV()">📥 导出 CSV</button>
             </div>
         </div>
@@ -1018,6 +1020,131 @@
             }
             
             renderTable();
+        }
+
+        function importCSV(input) {
+            const file = input.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const text = e.target.result;
+                    const lines = text.replace(/^\uFEFF/, '').split(/\r?\n/).filter(l => l.trim());
+                    if (lines.length < 2) {
+                        showToast('CSV 文件没有数据', 'error');
+                        input.value = '';
+                        return;
+                    }
+                    
+                    // 解析标题行确定列索引
+                    const headers = parseCSVLine(lines[0]);
+                    const idx = {
+                        model: headers.indexOf('型号'),
+                        assetNo: headers.indexOf('资产编号'),
+                        newNo: headers.indexOf('新编号'),
+                        boardNo: headers.indexOf('主板编号'),
+                        status: headers.indexOf('状态'),
+                        location: headers.indexOf('位置'),
+                        remark: headers.indexOf('备注'),
+                        updatedAt: headers.indexOf('修改时间')
+                    };
+                    
+                    if (idx.assetNo === -1 || idx.model === -1) {
+                        showToast('CSV 格式错误：缺少必要的「型号」或「资产编号」列', 'error');
+                        input.value = '';
+                        return;
+                    }
+                    
+                    let added = 0;
+                    let updated = 0;
+                    const now = new Date().toISOString();
+                    
+                    for (let i = 1; i < lines.length; i++) {
+                        const cols = parseCSVLine(lines[i]);
+                        if (cols.length < Math.max(idx.model, idx.assetNo) + 1) continue;
+                        
+                        const model = cols[idx.model]?.trim();
+                        const assetNo = cols[idx.assetNo]?.trim();
+                        if (!model || !assetNo) continue;
+                        
+                        const newNo = cols[idx.newNo]?.trim() || '';
+                        const boardNo = cols[idx.boardNo]?.trim() || '';
+                        const status = cols[idx.status]?.trim() || '在用';
+                        const location = cols[idx.location]?.trim() || '';
+                        const remark = cols[idx.remark]?.trim() || '';
+                        const updatedAt = cols[idx.updatedAt]?.trim() || now;
+                        
+                        // 如果型号不存在则自动添加
+                        if (!models.includes(model)) {
+                            models.push(model);
+                        }
+                        
+                        // 按资产编号查找是否已存在
+                        const existingIndex = hosts.findIndex(h => h.assetNo === assetNo);
+                        if (existingIndex !== -1) {
+                            hosts[existingIndex] = {
+                                ...hosts[existingIndex],
+                                model, assetNo, newNo, boardNo, status, location, remark,
+                                updatedAt: now
+                            };
+                            updated++;
+                        } else {
+                            hosts.push({
+                                id: 'host_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9) + '_' + i,
+                                model, assetNo, newNo, boardNo, status, location, remark,
+                                createdAt: now,
+                                updatedAt: now
+                            });
+                            added++;
+                        }
+                    }
+                    
+                    models.sort((a, b) => a.localeCompare(b, 'zh-CN'));
+                    saveModels();
+                    saveHosts();
+                    renderTable();
+                    updateModelSelects();
+                    input.value = '';
+                    showToast(`导入完成：新增 ${added} 条，更新 ${updated} 条`, 'success');
+                } catch (err) {
+                    console.error(err);
+                    showToast('导入失败：' + err.message, 'error');
+                    input.value = '';
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function parseCSVLine(line) {
+            const result = [];
+            let current = '';
+            let inQuotes = false;
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                const next = line[i + 1];
+                if (inQuotes) {
+                    if (char === '"' && next === '"') {
+                        current += '"';
+                        i++;
+                    } else if (char === '"') {
+                        inQuotes = false;
+                    } else {
+                        current += char;
+                    }
+                } else {
+                    if (char === '"') {
+                        inQuotes = true;
+                    } else if (char === ',') {
+                        result.push(current);
+                        current = '';
+                    } else {
+                        current += char;
+                    }
+                }
+            }
+            result.push(current);
+            return result;
         }
 
         function exportCSV() {
