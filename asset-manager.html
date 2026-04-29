@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>固定资产管理 - 电脑主机</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* 头部 */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        /* 统计栏 */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            text-align: center;
+            transition: transform 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .stat-card .number {
+            font-size: 32px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-card .label {
+            font-size: 13px;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        /* 操作栏 */
+        .toolbar {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .toolbar-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+            flex: 1;
+        }
+
+        .search-box {
+            position: relative;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 10px 14px 10px 38px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .search-box::before {
+            content: "🔍";
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 14px;
+        }
+
+        select, input[type="text"] {
+            padding: 10px 14px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            transition: border-color 0.2s;
+        }
+
+        select:focus, input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 500;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        .btn-warning {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #d97706;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+            border: 1px solid #d1d5db;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+
+        /* 表格 */
+        .table-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        thead {
+            background: #f9fafb;
+        }
+
+        th {
+            padding: 14px 16px;
+            text-align: left;
+            font-weight: 600;
+            color: #374151;
+            border-bottom: 1px solid #e5e7eb;
+            white-space: nowrap;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        th:hover {
+            background: #f3f4f6;
+        }
+
+        th .sort-icon {
+            margin-left: 4px;
+            opacity: 0.3;
+        }
+
+        th.sort-asc .sort-icon::after { content: "▲"; opacity: 1; }
+        th.sort-desc .sort-icon::after { content: "▼"; opacity: 1; }
+
+        td {
+            padding: 14px 16px;
+            border-bottom: 1px solid #f3f4f6;
+            vertical-align: middle;
+        }
+
+        tbody tr:hover {
+            background: #f9fafb;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-in-use { background: #dbeafe; color: #1e40af; }
+        .status-idle { background: #d1fae5; color: #065f46; }
+        .status-scrap { background: #fee2e2; color: #991b1b; }
+        .status-repair { background: #fef3c7; color: #92400e; }
+
+        .actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 12px;
+            border-radius: 6px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #9ca3af;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        /* 弹窗 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+            animation: modalIn 0.2s ease-out;
+        }
+
+        @keyframes modalIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal-header {
+            padding: 24px 24px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            font-size: 20px;
+            color: #111827;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #9ca3af;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .form-group label .required {
+            color: #ef4444;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .modal-footer {
+            padding: 0 24px 24px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        /* 型号管理 */
+        .model-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+
+        .model-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .model-item:last-child {
+            border-bottom: none;
+        }
+
+        .model-item:hover {
+            background: #f9fafb;
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 22px;
+            }
+
+            .toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .toolbar-group {
+                width: 100%;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            th, td {
+                padding: 10px 12px;
+                font-size: 13px;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+
+            .btn-small {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        /* Toast */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast {
+            padding: 12px 20px;
+            border-radius: 8px;
+            color: white;
+            font-size: 14px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            animation: toastIn 0.3s ease-out;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateX(100%); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .toast-success { background: #10b981; }
+        .toast-error { background: #ef4444; }
+        .toast-info { background: #3b82f6; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 头部 -->
+        <div class="header">
+            <h1>🖥️ 固定资产管理</h1>
+            <p>电脑主机资产统计与管理系统</p>
+        </div>
+
+        <!-- 统计栏 -->
+        <div class="stats-bar">
+            <div class="stat-card">
+                <div class="number" id="stat-total">0</div>
+                <div class="label">资产总数</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="stat-in-use">0</div>
+                <div class="label">在用</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="stat-idle">0</div>
+                <div class="label">闲置</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="stat-repair">0</div>
+                <div class="label">维修</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="stat-scrap">0</div>
+                <div class="label">报废</div>
+            </div>
+        </div>
+
+        <!-- 工具栏 -->
+        <div class="toolbar">
+            <div class="toolbar-group">
+                <div class="search-box">
+                    <input type="text" id="search-input" placeholder="搜索资产编号、新编号、主板编号...">
+                </div>
+                <select id="filter-model">
+                    <option value="">全部型号</option>
+                </select>
+                <select id="filter-status">
+                    <option value="">全部状态</option>
+                    <option value="在用">在用</option>
+                    <option value="闲置">闲置</option>
+                    <option value="维修">维修</option>
+                    <option value="报废">报废</option>
+                </select>
+                <select id="filter-location">
+                    <option value="">全部位置</option>
+                </select>
+            </div>
+            <div class="toolbar-group" style="justify-content: flex-end;">
+                <button class="btn btn-success" onclick="openHostModal()">➕ 新增主机</button>
+                <button class="btn btn-warning" onclick="openModelModal()">⚙️ 管理型号</button>
+                <button class="btn btn-secondary" onclick="exportCSV()">📥 导出 CSV</button>
+            </div>
+        </div>
+
+        <!-- 数据表格 -->
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th onclick="sortTable('model')">型号 <span class="sort-icon">↕</span></th>
+                        <th onclick="sortTable('assetNo')">资产编号 <span class="sort-icon">↕</span></th>
+                        <th onclick="sortTable('newNo')">新编号 <span class="sort-icon">↕</span></th>
+                        <th onclick="sortTable('boardNo')">主板编号 <span class="sort-icon">↕</span></th>
+                        <th onclick="sortTable('status')">状态 <span class="sort-icon">↕</span></th>
+                        <th onclick="sortTable('location')">位置 <span class="sort-icon">↕</span></th>
+                        <th onclick="sortTable('remark')">备注 <span class="sort-icon">↕</span></th>
+                        <th onclick="sortTable('updatedAt')">修改时间 <span class="sort-icon">↕</span></th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body">
+                    <tr>
+                        <td colspan="9" class="empty-state">
+                            <div class="empty-state-icon">📦</div>
+                            <div>暂无数据，点击「新增主机」添加第一条记录</div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 主机编辑弹窗 -->
+    <div class="modal-overlay" id="host-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="host-modal-title">新增主机</h2>
+                <button class="modal-close" onclick="closeHostModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="host-form">
+                    <input type="hidden" id="host-id">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>电脑型号 <span class="required">*</span></label>
+                            <select id="host-model" required>
+                                <option value="">请选择型号</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>资产编号 <span class="required">*</span></label>
+                            <input type="text" id="host-assetNo" placeholder="请输入资产编号" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>新编号</label>
+                            <input type="text" id="host-newNo" placeholder="请输入新编号">
+                        </div>
+                        <div class="form-group">
+                            <label>主板编号</label>
+                            <input type="text" id="host-boardNo" placeholder="请输入主板编号">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>状态 <span class="required">*</span></label>
+                            <select id="host-status" required>
+                                <option value="在用">在用</option>
+                                <option value="闲置">闲置</option>
+                                <option value="维修">维修</option>
+                                <option value="报废">报废</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>位置</label>
+                            <input type="text" id="host-location" placeholder="请输入位置">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>备注</label>
+                        <textarea id="host-remark" placeholder="请输入备注信息..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeHostModal()">取消</button>
+                <button class="btn btn-primary" onclick="saveHost()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 型号管理弹窗 -->
+    <div class="modal-overlay" id="model-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>管理型号</h2>
+                <button class="modal-close" onclick="closeModelModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>添加新型号</label>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="text" id="new-model-input" placeholder="输入型号名称" style="flex: 1;">
+                        <button class="btn btn-primary" onclick="addModel()">添加</button>
+                    </div>
+                </div>
+                <div class="model-list" id="model-list">
+                    <!-- 动态渲染 -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModelModal()">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast 容器 -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <script>
+        // ==================== 数据管理 ====================
+        const STORAGE_KEYS = {
+            MODELS: 'asset_models',
+            HOSTS: 'asset_hosts'
+        };
+
+        let models = [];
+        let hosts = [];
+        let sortField = 'updatedAt';
+        let sortDirection = 'desc';
+
+        // 初始化数据
+        function initData() {
+            const savedModels = localStorage.getItem(STORAGE_KEYS.MODELS);
+            const savedHosts = localStorage.getItem(STORAGE_KEYS.HOSTS);
+            
+            models = savedModels ? JSON.parse(savedModels) : [
+                '联想 ThinkCentre M920t',
+                '戴尔 OptiPlex 7080',
+                '惠普 EliteDesk 800 G6',
+                '华硕 ExpertCenter D7'
+            ];
+            hosts = savedHosts ? JSON.parse(savedHosts) : [];
+            
+            saveModels();
+            saveHosts();
+        }
+
+        function saveModels() {
+            localStorage.setItem(STORAGE_KEYS.MODELS, JSON.stringify(models));
+        }
+
+        function saveHosts() {
+            localStorage.setItem(STORAGE_KEYS.HOSTS, JSON.stringify(hosts));
+        }
+
+        // ==================== 渲染 ====================
+        function renderTable() {
+            const tbody = document.getElementById('table-body');
+            const filtered = getFilteredHosts();
+            
+            // 排序
+            filtered.sort((a, b) => {
+                let va = a[sortField] || '';
+                let vb = b[sortField] || '';
+                if (sortField === 'updatedAt') {
+                    return sortDirection === 'asc' 
+                        ? new Date(va) - new Date(vb)
+                        : new Date(vb) - new Date(va);
+                }
+                return sortDirection === 'asc'
+                    ? String(va).localeCompare(String(vb), 'zh-CN')
+                    : String(vb).localeCompare(String(va), 'zh-CN');
+            });
+            
+            if (filtered.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="9" class="empty-state">
+                            <div class="empty-state-icon">📦</div>
+                            <div>暂无数据，点击「新增主机」添加第一条记录</div>
+                        </td>
+                    </tr>
+                `;
+            } else {
+                tbody.innerHTML = filtered.map(host => `
+                    <tr>
+                        <td>${escapeHtml(host.model)}</td>
+                        <td>${escapeHtml(host.assetNo)}</td>
+                        <td>${escapeHtml(host.newNo || '-')}</td>
+                        <td>${escapeHtml(host.boardNo || '-')}</td>
+                        <td><span class="status-badge status-${getStatusClass(host.status)}">${host.status}</span></td>
+                        <td>${escapeHtml(host.location || '-')}</td>
+                        <td>${escapeHtml(host.remark || '-')}</td>
+                        <td>${formatDate(host.updatedAt)}</td>
+                        <td>
+                            <div class="actions">
+                                <button class="btn btn-warning btn-small" onclick="editHost('${host.id}')">编辑</button>
+                                <button class="btn btn-danger btn-small" onclick="deleteHost('${host.id}')">删除</button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+            
+            updateStats();
+            updateLocationFilter();
+        }
+
+        function getFilteredHosts() {
+            const keyword = document.getElementById('search-input').value.toLowerCase();
+            const modelFilter = document.getElementById('filter-model').value;
+            const statusFilter = document.getElementById('filter-status').value;
+            const locationFilter = document.getElementById('filter-location').value;
+            
+            return hosts.filter(h => {
+                const matchKeyword = !keyword || 
+                    (h.assetNo && h.assetNo.toLowerCase().includes(keyword)) ||
+                    (h.newNo && h.newNo.toLowerCase().includes(keyword)) ||
+                    (h.boardNo && h.boardNo.toLowerCase().includes(keyword)) ||
+                    (h.remark && h.remark.toLowerCase().includes(keyword));
+                const matchModel = !modelFilter || h.model === modelFilter;
+                const matchStatus = !statusFilter || h.status === statusFilter;
+                const matchLocation = !locationFilter || h.location === locationFilter;
+                return matchKeyword && matchModel && matchStatus && matchLocation;
+            });
+        }
+
+        function updateStats() {
+            document.getElementById('stat-total').textContent = hosts.length;
+            document.getElementById('stat-in-use').textContent = hosts.filter(h => h.status === '在用').length;
+            document.getElementById('stat-idle').textContent = hosts.filter(h => h.status === '闲置').length;
+            document.getElementById('stat-repair').textContent = hosts.filter(h => h.status === '维修').length;
+            document.getElementById('stat-scrap').textContent = hosts.filter(h => h.status === '报废').length;
+        }
+
+        function updateModelSelects() {
+            const selects = [
+                document.getElementById('host-model'),
+                document.getElementById('filter-model')
+            ];
+            
+            selects.forEach(select => {
+                const currentValue = select.value;
+                const isFilter = select.id === 'filter-model';
+                select.innerHTML = isFilter 
+                    ? '<option value="">全部型号</option>'
+                    : '<option value="">请选择型号</option>';
+                
+                models.forEach(model => {
+                    const option = document.createElement('option');
+                    option.value = model;
+                    option.textContent = model;
+                    select.appendChild(option);
+                });
+                
+                if (currentValue && models.includes(currentValue)) {
+                    select.value = currentValue;
+                }
+            });
+        }
+
+        function updateLocationFilter() {
+            const select = document.getElementById('filter-location');
+            const currentValue = select.value;
+            const locations = [...new Set(hosts.map(h => h.location).filter(Boolean))].sort();
+            
+            select.innerHTML = '<option value="">全部位置</option>';
+            locations.forEach(loc => {
+                const option = document.createElement('option');
+                option.value = loc;
+                option.textContent = loc;
+                select.appendChild(option);
+            });
+            
+            if (currentValue && locations.includes(currentValue)) {
+                select.value = currentValue;
+            }
+        }
+
+        function renderModelList() {
+            const container = document.getElementById('model-list');
+            if (models.length === 0) {
+                container.innerHTML = '<div class="model-item" style="color:#9ca3af;justify-content:center;">暂无型号</div>';
+                return;
+            }
+            container.innerHTML = models.map((model, index) => `
+                <div class="model-item">
+                    <span>${escapeHtml(model)}</span>
+                    <button class="btn btn-danger btn-small" onclick="deleteModel(${index})">删除</button>
+                </div>
+            `).join('');
+        }
+
+        // ==================== 操作 ====================
+        function openHostModal(hostId = null) {
+            const modal = document.getElementById('host-modal');
+            const title = document.getElementById('host-modal-title');
+            const form = document.getElementById('host-form');
+            
+            form.reset();
+            document.getElementById('host-id').value = '';
+            
+            if (hostId) {
+                const host = hosts.find(h => h.id === hostId);
+                if (!host) return;
+                title.textContent = '编辑主机';
+                document.getElementById('host-id').value = host.id;
+                document.getElementById('host-model').value = host.model;
+                document.getElementById('host-assetNo').value = host.assetNo;
+                document.getElementById('host-newNo').value = host.newNo || '';
+                document.getElementById('host-boardNo').value = host.boardNo || '';
+                document.getElementById('host-status').value = host.status;
+                document.getElementById('host-location').value = host.location || '';
+                document.getElementById('host-remark').value = host.remark || '';
+            } else {
+                title.textContent = '新增主机';
+            }
+            
+            updateModelSelects();
+            modal.classList.add('active');
+        }
+
+        function closeHostModal() {
+            document.getElementById('host-modal').classList.remove('active');
+        }
+
+        function saveHost() {
+            const id = document.getElementById('host-id').value;
+            const model = document.getElementById('host-model').value;
+            const assetNo = document.getElementById('host-assetNo').value.trim();
+            const newNo = document.getElementById('host-newNo').value.trim();
+            const boardNo = document.getElementById('host-boardNo').value.trim();
+            const status = document.getElementById('host-status').value;
+            const location = document.getElementById('host-location').value.trim();
+            const remark = document.getElementById('host-remark').value.trim();
+            
+            if (!model) {
+                showToast('请选择电脑型号', 'error');
+                return;
+            }
+            if (!assetNo) {
+                showToast('请输入资产编号', 'error');
+                return;
+            }
+            
+            const now = new Date().toISOString();
+            
+            if (id) {
+                const index = hosts.findIndex(h => h.id === id);
+                if (index !== -1) {
+                    hosts[index] = { ...hosts[index], model, assetNo, newNo, boardNo, status, location, remark, updatedAt: now };
+                    showToast('修改成功');
+                }
+            } else {
+                const newHost = {
+                    id: 'host_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+                    model, assetNo, newNo, boardNo, status, location, remark,
+                    createdAt: now,
+                    updatedAt: now
+                };
+                hosts.push(newHost);
+                showToast('添加成功');
+            }
+            
+            saveHosts();
+            renderTable();
+            closeHostModal();
+        }
+
+        function editHost(id) {
+            openHostModal(id);
+        }
+
+        function deleteHost(id) {
+            if (!confirm('确定要删除这条记录吗？')) return;
+            hosts = hosts.filter(h => h.id !== id);
+            saveHosts();
+            renderTable();
+            showToast('删除成功');
+        }
+
+        function openModelModal() {
+            renderModelList();
+            document.getElementById('model-modal').classList.add('active');
+            document.getElementById('new-model-input').value = '';
+            document.getElementById('new-model-input').focus();
+        }
+
+        function closeModelModal() {
+            document.getElementById('model-modal').classList.remove('active');
+        }
+
+        function addModel() {
+            const input = document.getElementById('new-model-input');
+            const value = input.value.trim();
+            
+            if (!value) {
+                showToast('请输入型号名称', 'error');
+                return;
+            }
+            if (models.includes(value)) {
+                showToast('该型号已存在', 'error');
+                return;
+            }
+            
+            models.push(value);
+            models.sort((a, b) => a.localeCompare(b, 'zh-CN'));
+            saveModels();
+            renderModelList();
+            updateModelSelects();
+            input.value = '';
+            input.focus();
+            showToast('型号添加成功');
+        }
+
+        function deleteModel(index) {
+            const model = models[index];
+            const inUse = hosts.some(h => h.model === model);
+            if (inUse) {
+                showToast('该型号正在被使用，无法删除', 'error');
+                return;
+            }
+            if (!confirm(`确定要删除型号「${model}」吗？`)) return;
+            models.splice(index, 1);
+            saveModels();
+            renderModelList();
+            updateModelSelects();
+            showToast('型号删除成功');
+        }
+
+        function sortTable(field) {
+            if (sortField === field) {
+                sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortField = field;
+                sortDirection = 'asc';
+            }
+            
+            // 更新表头样式
+            document.querySelectorAll('th').forEach(th => {
+                th.classList.remove('sort-asc', 'sort-desc');
+            });
+            const thIndex = ['model','assetNo','newNo','boardNo','status','location','remark','updatedAt'].indexOf(field);
+            if (thIndex !== -1) {
+                const th = document.querySelectorAll('th')[thIndex];
+                th.classList.add(sortDirection === 'asc' ? 'sort-asc' : 'sort-desc');
+            }
+            
+            renderTable();
+        }
+
+        function exportCSV() {
+            const filtered = getFilteredHosts();
+            if (filtered.length === 0) {
+                showToast('没有数据可导出', 'error');
+                return;
+            }
+            
+            const headers = ['型号', '资产编号', '新编号', '主板编号', '状态', '位置', '备注', '修改时间'];
+            const rows = filtered.map(h => [
+                h.model,
+                h.assetNo,
+                h.newNo || '',
+                h.boardNo || '',
+                h.status,
+                h.location || '',
+                h.remark || '',
+                formatDate(h.updatedAt)
+            ]);
+            
+            const csvContent = '\uFEFF' + [headers, ...rows]
+                .map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+                .join('\n');
+            
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const timestamp = new Date().toISOString().slice(0, 10);
+            link.href = URL.createObjectURL(blob);
+            link.download = `固定资产_${timestamp}.csv`;
+            link.click();
+            URL.revokeObjectURL(link.href);
+            showToast('CSV 导出成功');
+        }
+
+        // ==================== 工具函数 ====================
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function getStatusClass(status) {
+            const map = {
+                '在用': 'in-use',
+                '闲置': 'idle',
+                '报废': 'scrap',
+                '维修': 'repair'
+            };
+            return map[status] || '';
+        }
+
+        function formatDate(isoString) {
+            if (!isoString) return '-';
+            const date = new Date(isoString);
+            const pad = n => String(n).padStart(2, '0');
+            return `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+        }
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            
+            const icons = { success: '✓', error: '✕', info: 'ℹ' };
+            toast.innerHTML = `<span>${icons[type] || '✓'}</span><span>${message}</span>`;
+            
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(100%)';
+                toast.style.transition = 'all 0.3s';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // ==================== 事件绑定 ====================
+        document.addEventListener('DOMContentLoaded', () => {
+            initData();
+            renderTable();
+            updateModelSelects();
+            
+            // 搜索与筛选
+            document.getElementById('search-input').addEventListener('input', renderTable);
+            document.getElementById('filter-model').addEventListener('change', renderTable);
+            document.getElementById('filter-status').addEventListener('change', renderTable);
+            document.getElementById('filter-location').addEventListener('change', renderTable);
+            
+            // 回车添加型号
+            document.getElementById('new-model-input').addEventListener('keypress', e => {
+                if (e.key === 'Enter') addModel();
+            });
+            
+            // 点击遮罩关闭弹窗
+            document.querySelectorAll('.modal-overlay').forEach(overlay => {
+                overlay.addEventListener('click', e => {
+                    if (e.target === overlay) overlay.classList.remove('active');
+                });
+            });
+        });
+    </script>
+</body>
+</html>
